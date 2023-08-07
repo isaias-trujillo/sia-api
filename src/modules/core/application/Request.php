@@ -12,23 +12,33 @@ final class Request
     private $course_code;
     private $course;
     private $cycle;
+    private $credits;
     private $section;
-    private $career;
+    public $study_plan;
 
-    public function __construct($paternal_surname = null, $maternal_surname = null, $firstname = null, $dni = null, $classroom_and_turn = null, $course_code = null, $course = null, $cycle = null, $section = null, $career = null)
+    public $career;
+
+    public function __construct($paternal_surname = null, $maternal_surname = null, $firstname = null, $dni = null, $classroom_and_turn = null, $course_code = null, $course = null, $cycle = null, $credits = null, $section = null, $study_plan = null, $career = null)
     {
-        $this->paternal_surname = $paternal_surname;
-        $this->maternal_surname = $maternal_surname;
-        $this->firstname = $firstname;
-        $this->dni = $dni;
-        $this->classroom_and_turn = $classroom_and_turn;
-        $this->course_code = $course_code;
-        $this->course = $course;
-        $this->cycle = $cycle;
-        $this->section = $section;
-        $this->career = $career;
+        $this->paternal_surname = $this->remove_whitespaces($paternal_surname);
+        $this->maternal_surname = $this->remove_whitespaces($maternal_surname);
+        $this->firstname = $this->remove_whitespaces($firstname);
+        $this->dni = $this->remove_whitespaces($dni);
+        $this->classroom_and_turn = $this->remove_whitespaces($classroom_and_turn);
+        $this->course_code = $this->remove_whitespaces($course_code);
+        $this->course = $this->remove_whitespaces($course);
+        $this->cycle = $this->remove_whitespaces($cycle);
+        $this->credits = $this->remove_whitespaces($credits);
+        $this->section = $this->remove_whitespaces($section);
+        $this->study_plan = $this->remove_whitespaces($study_plan);
+        $this->career = $this->remove_whitespaces($career);
     }
 
+    private function remove_whitespaces(string $text): string
+    {
+        $modified= preg_replace("/\s+/", ' ', $text);
+        return trim($modified);
+    }
 
     public function paternal_surname()
     {
@@ -65,6 +75,10 @@ final class Request
         return $this->course;
     }
 
+    public function credits(){
+        return $this->credits;
+    }
+
     public function cycle()
     {
         return $this->cycle;
@@ -73,14 +87,5 @@ final class Request
     public function section()
     {
         return $this->section;
-    }
-
-    public function career()
-    {
-        return $this->career;
-    }
-    public function set_career($career)
-    {
-        $this->career = $career;
     }
 }

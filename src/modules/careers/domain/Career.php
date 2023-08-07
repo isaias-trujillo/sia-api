@@ -2,7 +2,9 @@
 
 namespace modules\careers\domain;
 
-class Career extends \modules\shared\domain\Entity
+use modules\shared\domain\Entity;
+
+class Career extends Entity
 {
     private $name;
     private $abbreviation;
@@ -37,5 +39,10 @@ class Career extends \modules\shared\domain\Entity
           'abbreviation' => $this->abbreviation(),
           'order' => $this->order(),
         ];
+    }
+    public function __toString()
+    {
+        $order = $this->order();
+        return "Escuela Profesional ($order)";
     }
 }

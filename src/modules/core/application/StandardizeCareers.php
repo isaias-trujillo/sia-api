@@ -20,21 +20,34 @@ final class StandardizeCareers
             'name' => 'Auditoría Empresarial',
             'abbreviation' => 'A'
         ],
-        '4' =>  [
+        '4' => [
             'name' => 'Presupuesto y Finanzas',
             'abbreviation' => 'PFP'
         ],
     ];
 
-    public static function run(array $records): array
+    public static function run(array &$records): array
     {
-        $career_order_list = array_values(array_unique(array_map(function (Request $request) {
-            return $request->career();
+        $careers = self::get_careers($records);
+        $created = 0;
+        $items = self::create_careers($careers, $created);
+        foreach ($records as &$record) {
+            $key = (string) $record['career'];
+            $id = $items[$key];
+            $record['career'] = $id;
+        }
+        return ['total' => count($careers), 'created' => $created];
+    }
+
+    private static function get_careers(array $records): array
+    {
+        $career_order_list = array_values(array_unique(array_map(function (array $record) {
+            return $record['career'];
         }, $records)));
 
-        $careers = array_filter(array_map(function (string $order) use ($records) {
-            $match = array_values(array_filter($records, function (Request $request) use ($order) {
-                return $request->career() == $order;
+        return array_filter(array_map(function (string $order) use ($records) {
+            $match = array_values(array_filter($records, function (array $record) use ($order) {
+                return $record['career'] == $order;
             }))[0] ?? null;
             if (!$match) {
                 return null;
@@ -42,8 +55,10 @@ final class StandardizeCareers
             $info = StandardizeCareers::$careers[$order] ?? ['name' => "Escuela profesional ($order})", 'abbreviation' => "E.P. ($order)"];
             return new Career($info['name'], $info['abbreviation'], intval($order));
         }, $career_order_list));
+    }
 
-        $created = 0;
+    private static function create_careers(array $careers, int &$created): array
+    {
         $items = [];
         $service = new CareerService();
         foreach ($careers as $career) {
@@ -66,10 +81,6 @@ final class StandardizeCareers
             }
             $items[$order] = $result['order']['id'];
         }
-        foreach ($records as $record){
-            $id = $items[$record->career()];
-            $record->set_career($id);
-        }
-        return ['total' => count($careers), 'created' => $created];
+        return $items;
     }
 }

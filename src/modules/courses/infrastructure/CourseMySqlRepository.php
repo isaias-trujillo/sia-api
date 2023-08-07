@@ -1,44 +1,57 @@
 <?php
 
-namespace courses\infrastructure;
+namespace modules\courses\infrastructure;
 
-use courses\domain\Course;
-use courses\domain\Repository;
+use modules\courses\domain\Course;
+use modules\courses\domain\Repository;
 use modules\shared\infrastructure\MySqlRepository;
 
 class CourseMySqlRepository extends MySqlRepository implements Repository
 {
-    function exists(string $code): array
+    function exists(Course $course): array
     {
-        $query = "select * from teachers where dni=?";
-        $parameters = ['type' => 's', 'values' => [$code]];
-        return $this->check_if_exists($query, $parameters);
+        $query = "select * from courses where study_plan_id=? and cycle = ? and code=? and name=? and credits=?";
+        $message = [
+            'error' => "No existe el curso $course",
+            'success' => "Se ha encontrado el curso $course.",
+        ];
+        $parameters = ['types' => 'iissi', 'values' => array_values($course->to_array())];
+        return $this->check_if_exists($query, $message, $parameters);
     }
 
     function save(Course $course): array
     {
-        $code = $course->code();
-        $result = $this->exists($code);
+        $name = $course->name();
+        $result = $this->exists($course);
         if (!$result['success']) {
             return ['success' => false, 'created' => false, 'message' => $result['message']];
         }
         if ($result['exists']) {
-            return ['success' => true, 'created' => false, 'message' => "Ya existe un curso con el código $code."];
+            return ['success' => true, 'created' => false, 'message' => "Ya existe el curso $course."];
         }
-        $query = "insert into teachers(paternal_surname, maternal_surname, firstname, dni) values (?, ?, ?, ?)";
+        $query = "insert into courses(study_plan_id, cycle, code, name, credits) values (?, ?, ?, ?, ?)";
         $parameters = [
-            'types' => "ss",
+            'types' => "iissi",
             'values' => array_values($course->to_array())
         ];
         $message = [
-            'error' => "No se pudo registrar al profesor.",
-            'success' => "Se ha registrado al profesor con dni $code."
+            'error' => "No se pudo registrar el curso.",
+            'success' => "Se ha registrado el curso $name."
         ];
         return $this->insert($query, $parameters, $message);
     }
 
     function find(Course $course): array
     {
-        // TODO: Implement find() method.
+        $query = "select * from courses where study_plan_id=? and cycle = ? and code=? and name=? and credits=?";
+        $message = [
+            'error' => "No existe el curso $course.",
+            'success' => "Se ha encontrado el curso $course.",
+        ];
+        $parameters = ['types' => 'iissi', 'values' => array_values($course->to_array())];
+        $result = $this->select($query, $message, $parameters);
+        $result['course'] = $result['found'] ? $result['records'][0] : null;
+        unset($result['records'], $result['count']);
+        return $result;
     }
 }

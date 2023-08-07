@@ -15,7 +15,7 @@ class CareersMySqlRepository extends MySqlRepository implements Repository
             'error' => "No existe la escuela profesional ($order).",
             'success' => "Se ha encontrado la escuela profesional ($order)."
         ];
-        $parameters = ['type' => 'i', 'values' => [$order]];
+        $parameters = ['types' => 'i', 'values' => [$order]];
         return $this->check_if_exists($query, $message, $parameters);
     }
 

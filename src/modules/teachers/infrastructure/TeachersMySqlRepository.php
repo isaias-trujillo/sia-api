@@ -5,7 +5,6 @@ namespace modules\teachers\infrastructure;
 use modules\shared\infrastructure\MySqlRepository;
 use modules\teachers\domain\Repository;
 use modules\teachers\domain\Teacher;
-use mysqli;
 
 class TeachersMySqlRepository extends MySqlRepository implements Repository
 {
@@ -16,7 +15,7 @@ class TeachersMySqlRepository extends MySqlRepository implements Repository
             'error' => "El profesor con $dni no existe.",
             'success' => "Se ha encontrado un profesor con dni $dni."
         ];
-        $parameters = ['type' => 's', 'values' => [$dni]];
+        $parameters = ['types' => 's', 'values' => [$dni]];
         return $this->check_if_exists($query, $message, $parameters);
     }
 
