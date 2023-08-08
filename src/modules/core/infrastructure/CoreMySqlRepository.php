@@ -4,7 +4,9 @@ namespace modules\core\infrastructure;
 
 use modules\core\application\StandardizeCareers;
 use modules\core\application\StandardizeCourses;
+use modules\core\application\StandardizeGroups;
 use modules\core\application\StandardizeSections;
+use modules\core\application\StandardizeSectionsByGroup;
 use modules\core\application\StandardizeStudyPlans;
 use modules\core\application\StandardizeTeachers;
 use modules\core\domain\Repository;
@@ -20,6 +22,8 @@ final class CoreMySqlRepository extends MySqlRepository implements Repository
         $teachers = StandardizeTeachers::run($records);
         $courses = StandardizeCourses::run($records);
         $sections = StandardizeSections::run($records);
+        $groups = StandardizeGroups::run($records);
+        $sections_by_group = StandardizeSectionsByGroup::run($records);
 
         $overview = [
             'careers' => $careers,
@@ -27,6 +31,8 @@ final class CoreMySqlRepository extends MySqlRepository implements Repository
             'teachers' => $teachers,
             'courses' => $courses,
             'sections' => $sections,
+            'groups' => $groups,
+            'sections_by_group' => $sections_by_group,
         ];
 
         $controller = function () use ($records, $overview, $total) {
