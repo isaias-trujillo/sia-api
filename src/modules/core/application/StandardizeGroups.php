@@ -14,7 +14,7 @@ final class StandardizeGroups
 
         foreach ($records as &$record) {
             $key = $record['classroom and turn'] . " " . $record['course'];
-            $id = $items[$key] ?? null;
+            $id = $items[$key];
             $record['group id'] = $id;
         }
 

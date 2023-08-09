@@ -47,16 +47,16 @@ class GroupsMySqlRepository extends MySqlRepository implements Repository
 
     function read(string $classroom, $turn_id, string $course_name): array
     {
-        $query = "select g.id as 'id', g.classroom as 'classroom', t.name as 'turn', c.name as 'course', concat(t2.paternal_surname,' ', t2.maternal_surname, ' ', t2.firstname) as 'teacher', t2.dni as 'dni' from `groups` g 
-                    join turns t on g.turn_id = t.id
-                    join sections_by_group sbg on g.id = sbg.group_id 
-                    join sections s on s.id = sbg.section_id
-                    join courses c on s.course_id = c.id
-                    join teachers t2 on g.teacher_id = t2.id
-                    where g.classroom = ? 
-                      and g.turn_id = ? 
-                      and c.name = ?
-                      ";
+        $query = "select g.id, g.classroom, c.name
+                    from `groups` g
+                             join sections_by_group sbg on g.id = sbg.group_id
+                             join sections s on s.id = sbg.section_id
+                             join courses c on s.course_id = c.id
+                    where g.classroom = ?
+                      and (g.turn_id = ? or g.turn_id is null)
+                      and c.name = ?"
+        ;
+
         $message = [
             'error' => "El grupo $classroom de turno ($turn_id) del curso $course_name.",
             'success' => "Se ha encontrado el grupo $classroom de turno ($turn_id) del curso $course_name."
@@ -108,22 +108,9 @@ class GroupsMySqlRepository extends MySqlRepository implements Repository
 
     function read_link(int $section_id, int $group_id): array
     {
-        $query = "select sbg.id as 'id', 
-                        s.number as 'section', 
-                        s.student_limit as 'student limit', 
-                        g.classroom as 'classroom', 
-                        t.abbreviation as 'turn',
-                        c.name as 'course',
-                        concat(t2.paternal_surname, ' ', t2.maternal_surname, ' ', t2.firstname) as 'teacher',
-                        t2.dni as 'dni'
-                    from sections_by_group sbg
-                    join sections s on s.id = sbg.section_id
-                    join `groups` g on sbg.group_id = g.id
-                    join turns t on g.turn_id = t.id
-                    join courses c on s.course_id = c.id
-                    join teachers t2 on g.teacher_id = t2.id
+        $query = "select sbg.id as 'id' from sections_by_group sbg
                     where sbg.section_id = ?
-                        and sbg.group_id = ?
+                      and sbg.group_id = ?;
 ";
         $message = [
             'error' => "La sección con id `$section_id` no está vinculado al grupo con id `$group_id`.",

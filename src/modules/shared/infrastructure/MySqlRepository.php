@@ -30,9 +30,13 @@ abstract class MySqlRepository
     private function connect(): array
     {
         try {
+            $mysqli = mysqli_init();
+            $mysqli->real_connect($this->hostname, $this->username, $this->password, $this->database, $this->port);
+
+            $mysqli->set_charset("utf8mb4");
             return [
                 'connected' => true,
-                'connection' => new mysqli($this->hostname, $this->username, $this->password, $this->database, $this->port)
+                'connection' => $mysqli
             ];
         } catch (Exception $exception) {
             return [

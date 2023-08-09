@@ -49,7 +49,7 @@ final class CoreMySqlRepository extends MySqlRepository implements Repository
     function parsed_records(array $records): array
     {
         return array_map(function (array $row) {
-            $keys = ['career', 'study plan', 'cycle', 'credits', 'course', 'paternal surname', 'maternal surname', 'firstname', 'dni'];
+            $keys = ['career', 'student limit', 'study plan', 'cycle', 'credits', 'paternal surname', 'maternal surname', 'firstname', 'dni'];
             $copy = $row;
             foreach ($keys as $key){
                 unset($copy[$key]);
