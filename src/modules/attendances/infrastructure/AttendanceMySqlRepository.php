@@ -138,11 +138,32 @@ class AttendanceMySqlRepository extends MySqlRepository implements Repository
             }
             $updated_count++;
         }
-        $count = $not_modified_count + $updated_count+ $created_count;
+        $count = $not_modified_count + $updated_count + $created_count;
         $total = count($attended_by_student_id);
+
+        $attended_count = count(array_filter($attended_by_student_id, function (array $item) {
+            return $item['attended'];
+        }));
+
+        $not_attended_count = count($attended_by_student_id) - $attended_count;
+
+        $response_message = "¡Llamen a un informático!";
+
+        if ($not_attended_count == 0) {
+            $attendance_message = $attended_count == 1 ? "$attended_count asistencia" : "$attended_count asistencias";
+            $response_message = $created_count > 0 ? "Se han registrado $attendance_message" : "Se ha actualizado a $attendance_message";
+        } else if ($attended_count == 0) {
+            $attendance_message = $not_attended_count == 1 ? "$not_attended_count falta" : "$not_attended_count faltas";
+            $response_message = $created_count > 0 ? "Se han registrado $attendance_message" : "Se ha actualizado a $attendance_message";
+        } else {
+            $attended_message = $attended_count == 1 ? "$attended_count asistencia" : "$attended_count asistencias";
+            $not_attended_message = $not_attended_count == 1 ? "$not_attended_count falta" : "$not_attended_count faltas";
+            $response_message = $created_count > 0 ? "Se han registrado $attended_message y $not_attended_message" : "Se ha actualizado a $attended_message y $not_attended_message";
+        }
+
         return [
             'success' => $count > 0,
-            'message' => $created_count > 0 ? "Se ha registrado las asistencias" : "Se ha actualizado las asistencias",
+            'message' => $response_message,
             'count' => $count,
             'total' => $total,
             'updated' => $updated_count,
