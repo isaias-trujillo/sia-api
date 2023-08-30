@@ -3,9 +3,8 @@
 namespace modules\shared\infrastructure;
 
 use Exception;
-use mysqli;
 
-abstract class MySqlRepository
+class MySqlRepository
 {
     private $hostname;
     private $username;
@@ -16,7 +15,7 @@ abstract class MySqlRepository
     public function __construct(
         string $hostname = 'localhost',
         string $username = 'root',
-        string $password = '',
+        string $password = 'cont@-Rt-cv',
         string $database = 'sia',
         string $port = '3306')
     {
@@ -33,7 +32,7 @@ abstract class MySqlRepository
             $mysqli = mysqli_init();
             $mysqli->real_connect($this->hostname, $this->username, $this->password, $this->database, $this->port);
 
-            $mysqli->set_charset("utf8");
+            $mysqli->set_charset("utf8mb4");
             return [
                 'connected' => true,
                 'connection' => $mysqli
@@ -99,12 +98,6 @@ abstract class MySqlRepository
             'message' => $result['message'],
             'exists' => $result['found'],
         ];
-    }
-
-    private function test(mysqli $connection){
-        $statement = $connection->prepare("asa");
-        $error = $connection->error;
-        $statement->execute();
     }
 
     protected function retrieve_records(string $query, array $message, array $parameters = [], &$count = 0): array
